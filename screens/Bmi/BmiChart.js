@@ -35,6 +35,7 @@ const BmiChart = ({navigation}) => {
     await axios.get(`https://test.yobitrust.com:8443/Service-SelfWell-0.0.1-SNAPSHOT/bmi/${idUser}`)
     .then(response => {
       setBmis(response.data);
+      console.log(response.data);
     })
     .catch(e => {
     console.log(e.message);

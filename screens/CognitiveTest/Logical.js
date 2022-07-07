@@ -47,18 +47,20 @@ export default class Logical extends React.Component {
     const moment = require('moment');
     const today = moment();
     //const idUser = await AsyncStorage.getItem("id");
-  const idUser = "id"
+  const idUser  = await AsyncStorage.getItem("id");
     resultat = 2
     var resulta=localStorage.getItem('Total');
         let num = parseInt(resulta);
         num += resultat
         localStorage.setItem('Total',num );
 
-    const score = resultat;
+    var score = num;
     console.log(resultat);
     console.log(score)
     let testDate = today.format("YYYY-MM-DD");
-    await API.NewTest({score, testDate, idUser});
+    await API.NewTest({idUser,score});
+    console.log("score1");
+    console.log({idUser,score});
     var res = toString(resultat);
     await AsyncStorage.setItem("score", res);
     Alert.alert(
@@ -78,18 +80,20 @@ export default class Logical extends React.Component {
     const moment = require('moment');
     const today = moment();
     //const idUser = await AsyncStorage.getItem("id");
-    const idUser = "id"
+    const idUser = await AsyncStorage.getItem("id");
     resultat = 0
     var resulta=localStorage.getItem('Total');
         let num = parseInt(resulta);
         num += resultat
         localStorage.setItem('Total',num );
 
-    const score = resultat;
+    var score = num;
     let testDate = today.format("YYYY-MM-DD");
     var res = toString(num);
     await AsyncStorage.setItem("score", res);
-    await API.NewTest({score, testDate, idUser});
+    await API.NewTest({idUser,score});
+    console.log("score1");
+    console.log({idUser,score});
     Alert.alert(
       'Wrong answer !',
       'You have ' + resultat + ' points',

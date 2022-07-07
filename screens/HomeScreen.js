@@ -113,10 +113,12 @@ const HomeScreen = ({navigation}) => {
               >
 
                 <Card center middle shadow style={styles.category}>
-                  <Badge
+                <Badge
                     margin={[0, 0, 15]}
                     size={50}
+                    
                   >
+                    <Image source={require('../assets/model.png')} style={styles.imageSelfWell} />
                   </Badge>
                   <Text style={styles.text}>
                   model
@@ -134,10 +136,50 @@ const HomeScreen = ({navigation}) => {
                     size={50}
                     color="rgba(41,216,143,0.20)"
                   >
-                    <Image source={require('../assets/heartbeat.png')} style={styles.image} />
+                    <Image source={require('../assets/cardio.png')} style={styles.image} />
                   </Badge>
                   <Text style={styles.text}>
                     Cardio-care
+                  </Text>
+                 
+                </Card>
+              </TouchableOpacity>
+             
+              <TouchableOpacity
+                
+                onPress={() => navigation.navigate("ListDate")}
+              >
+
+                <Card center middle shadow style={styles.category}>
+                  <Badge
+                    margin={[0, 0, 15]}
+                    size={50}
+                    
+                  >
+                    <Image source={require('../assets/iot.png')} style={styles.imageSelfWell} />
+                  </Badge>
+                  <Text  style={styles.text}>
+                  IoT Sensors
+                  </Text>
+                 
+                </Card>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                
+                onPress={() => navigation.navigate("AddCardiac")}
+              >
+
+                <Card center middle shadow style={styles.category}>
+                  <Badge
+                    margin={[0, 0, 15]}
+                    size={50}
+                    
+                  >
+                    <Image source={require('../assets/nutrition.png')} style={styles.imageNutrition} />
+                  </Badge>
+                  <Text style={styles.text}>
+                    Nutrition
                   </Text>
                  
                 </Card>

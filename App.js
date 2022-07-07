@@ -29,6 +29,8 @@ import MainTabScreen from './screens/MainTabScreen';
 import model from './screens/model/model';
 import UpdatePass from './screens/UpdatePass';
 import ConfirmAccount from './screens/ConfirmAccount';
+import ListDate from './screens/IotData/ListDate';
+import ListDate1 from './screens/IotData/ListDate1';
 import SplashScreen from './screens/SplashScreen';
 import SignInScreen from './screens/SignInScreen';
 import SignUpScreen from './screens/SignUpScreen';
@@ -245,6 +247,8 @@ const App = () => {
         <Drawer.Navigator initialRouteName="HomeDrawer" drawerContent={props => <DrawerContent {...props} />}>
            <Drawer.Screen name="HomeDrawer" component={MainTabScreen} />
            <Drawer.Screen name="model" component={model} />
+           <Drawer.Screen name="ListDate" component={ListDate} />
+           <Drawer.Screen name="ListDate1" component={ListDate1} />
            <Drawer.Screen name="SplashScreen" component={SplashScreen} />
            <Drawer.Screen name="ConfirmAccount" component={ConfirmAccount} />
           <Drawer.Screen name="SignInScreen" component={SignInScreen} />

@@ -184,6 +184,10 @@ const NewTest = (send) => {
   send, 
   );
 };
+const GetTest = (id) => {
+  return http.get(`/cognictivetest-service-0.0.1-SNAPSHOT/cognictivetest/${id}` 
+  );
+};
 
 export default {
   login,
@@ -218,4 +222,5 @@ export default {
   showDinner,
   deleteFoodFromDinner,
   NewTest,
+  GetTest,
 }
