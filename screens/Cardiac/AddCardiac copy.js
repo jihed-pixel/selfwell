@@ -4,15 +4,17 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import Card1 from '../../components/Card1';
 import Block from '../../components/Block';
 import axios from 'axios';
-
+import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import { ProgressBar, Colors } from 'react-native-paper';
 import Api from '../../API';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import API from '../../API';
+import { PieChart } from 'react-native-svg-charts'
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 
 const { width, height } = Dimensions.get("window");
 var back = '<';
-var date = '';
 const moment = require('moment');
 const today = moment();
 var date1 = today.format('YYYY-MM-DD');
@@ -60,10 +62,11 @@ const BloodAnalysisHistory = ({navigation}) => {
       saturatedFats: "0",
       fiber: "0"
     };
+    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [datePicker, setDatePicker] = useState(false); 
     const [date, setDate] = useState(new Date());
     const [timePicker, setTimePicker] = useState(false);
-    const [time, setTime] = useState(new Date(Date.now()));
+    const [time, setTime] = useState();
     const [todayTest, setTodayTest] = useState([]);
     const [weekTest, setWeekTest] = useState([]);
     const [monthTest, setMonthTest] = useState([]);
@@ -81,7 +84,23 @@ const BloodAnalysisHistory = ({navigation}) => {
     const [data1, setData1] = useState();
     const [cognitive, setCognitive] = useState();
     var idUser;
-
+    const showDatePickeraa = () => {
+      setDatePickerVisibility(true);
+    };
+  
+    const hideDatePickeraa = () => {
+      setDatePickerVisibility(false);
+    };
+  
+    const handleConfirm = (date) => {
+      //date.setTime(date.getTime()-date.getTimezoneOffset()*60*1000)
+      setDate(date)
+      date1 = moment(date).format('YYYY-MM-DD');
+      retrieveBloodanalysis();
+      setDatePicker(false);
+      hideDatePickeraa();
+    };
+  
     const getBreakfast = async (date) => {
       const idUser = await AsyncStorage.getItem("id");
       API.showBreakfast(idUser, date)
@@ -152,30 +171,6 @@ const BloodAnalysisHistory = ({navigation}) => {
       });
     };
 
-
-
-
-
-    function showDatePicker() {
-      setDatePicker(true);
-    };
-   
-    function showTimePicker() {
-      setTimePicker(true);
-    };
-    function onDateSelected(event, value) {
-      setDate(value);
-console.log(value);
-      //date1 = String(date.toISOString().slice(0, 10)) ;
-      date1 = moment(value).format('YYYY-MM-DD');
-      retrieveBloodanalysis();
-      setDatePicker(false);
-    };
-   
-    function onTimeSelected(event, value) {
-      setTime(value);
-      setTimePicker(false);
-    };
 
 
     const exportBilan = async () => {
@@ -290,39 +285,19 @@ const retrieveCognitive = async () => {
           <Text style={styles.headerText}>My blood analysis History</Text>
           </View>
 <View >
-{datePicker && (
-          <DateTimePicker
-            value={date}
-            mode={'date'}
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-            is24Hour={true}
-            onChange={onDateSelected}
-          />
-        )}
+<View style={{ margin: 10 }}>
+<Button color="green" title={time !== undefined && time.toString().substr(0, 21) || "Choisir la date & l'horaire"} onPress={showDatePickeraa} />
+            <DateTimePickerModal
 
-        {timePicker && (
-          <DateTimePicker
-            value={time}
-            mode={'time'}
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-            is24Hour={false}
-            onChange={onTimeSelected}
-          />
-        )}
- 
-        {!datePicker && (
-          <View style={{ margin: 10 }}>
-            <Button title="Show Date Picker" color="green" onPress={showDatePicker} />
-          </View>
-        )}
- 
-        {!timePicker && (
-          <View style={{ margin: 10 }}>
-            <Button title="Show Time Picker" color="green" onPress={showTimePicker} />
-          </View>
-        )}
-        
-      
+              isVisible={isDatePickerVisible}
+              mode="datetime"
+              onConfirm={handleConfirm}
+              onCancel={hideDatePickeraa}
+              testID="dateTimePicker"
+
+            /></View>
+
+
       <View>
       
 {todayTest ? ( 
@@ -497,7 +472,56 @@ const retrieveCognitive = async () => {
             )}
            </View>
            
-{/* ////////////////////////////////////////// */}
+{/* //////////////////////////////////////////
+            <View style={styles.containerThree}>
+<Card1 shadow >
+        <Block row space="between" style={{ marginBottom: 16 }}>
+       
+          <Text spacing={0.5} caption medium primary style={styles.dateText}>
+          
+          </Text>
+        
+         
+        </Block>
+        <Text style={styles.dateText}>{moment(date1).format('LL')}</Text>
+        <Block row space="between" style={{ marginBottom: 16 }}>
+          <Image spacing={0.5} caption source={require('../../assets/scale.png')} style={styles.image}/>
+          <Image spacing={0.5} caption source={require('../../assets/height.png')} style={styles.image}/>
+          <Image spacing={0.5} caption source={require('../../assets/bmiIcon.png')} style={styles.image}/>
+        </Block>
+        <Block row center>
+          
+        <Block row space="between" style={{ marginBottom: 16 }}>          
+            <Text spacing={0.5} caption medium primary style={styles.textStyle}>
+              {data0} Kg
+            </Text>
+            <Text spacing={0.5} caption style={styles.textStyle}>
+            {data2} cm
+            </Text>
+            <Text spacing={0.5} caption style={styles.textStyle}>
+            {data1}
+            </Text>
+        </Block>
+        </Block>
+      
+
+       
+</Card1>
+<Card1 shadow >
+        <Block row space="between" style={{ marginBottom: 16 }}>
+       
+        <Text style={styles.dateText}></Text>
+          </Block>
+          <Text style={styles.dateText}>{moment(date1).format('LL')}</Text>
+          <Block row space="between" style={{ marginBottom: 30 }}>
+          </Block>
+          {cognitive ? (<Text style={styles.textStyle}>{cognitive.score}</Text>) : (<Text style={styles.textStyle}>No Data</Text>)}
+
+      
+
+       
+      </Card1>
+</View>
 <View style={styles.containerThree}>
        
        <TouchableOpacity  onPress={()=> navigateToBreakfast("Breakfast")}>  
@@ -577,61 +601,613 @@ const retrieveCognitive = async () => {
                
        </Card1>
       </TouchableOpacity>
-       </View>
-{/* ////////////////////////////////////////// */}
-<Card1 shadow >
-        <Block row space="between" style={{ marginBottom: 16 }}>
+       </View> 
        
-          <Text spacing={0.5} caption medium primary style={styles.dateText}>
-          
-          </Text>
-        
+
+
+
+      <View style={styles.containerThree}>
+
+      {breakfastItems && lunchItems && dinnerItems ? ( 
+       <View style={styles.containerFour}>
+         <View style={{alignContent:"center", alignItems: "center", marginTop: height * 0.02, marginBottom: height * 0.02}}>
+         <AnimatedCircularProgress
+          size={1800/10}
+          width={15}
+          fill={(((parseFloat(breakfastItems.calories) + parseFloat(lunchItems.calories) + parseFloat(dinnerItems.calories)).toFixed(2))/1800)*100}
+          tintColor="#00e0ff"
+          backgroundColor="white"
+          rotation={360}
+          duration={1000}
+        >
+          {(fill) => <Text style={styles.circleText}>Total calories: {(parseFloat(breakfastItems.calories) + parseFloat(lunchItems.calories) + parseFloat(dinnerItems.calories)).toFixed(0)} cals</Text>}
+        </AnimatedCircularProgress>
+         </View>
          
-        </Block>
-        <Text style={styles.dateText}>{moment(date1).format('LL')}</Text>
-        <Block row space="between" style={{ marginBottom: 16 }}>
-          <Image spacing={0.5} caption source={require('../../assets/scale.png')} style={styles.image}/>
-          <Image spacing={0.5} caption source={require('../../assets/height.png')} style={styles.image}/>
-          <Image spacing={0.5} caption source={require('../../assets/bmiIcon.png')} style={styles.image}/>
-        </Block>
-        <Block row center>
+             <Text >Meal totals:</Text> 
+             <View style={{flex: 1, flexDirection: 'row', marginTop: height * 0.03 , marginLeft:width * 0.05}}>
+             <Text>Calories:</Text>
+             <View style={{flex: 1, flexDirection: 'column',  marginLeft:width * 0.05}}>
+               <Text>{(parseFloat(breakfastItems.calories) + parseFloat(lunchItems.calories) + parseFloat(dinnerItems.calories)).toFixed(0)} cals, 
+               {(((parseFloat(breakfastItems.calories) + parseFloat(lunchItems.calories) + parseFloat(dinnerItems.calories)).toFixed(2)*100)/1800).toFixed(0)}%</Text>
+               <ProgressBar progress={((parseFloat(breakfastItems.calories) + parseFloat(lunchItems.calories) + parseFloat(dinnerItems.calories)).toFixed(2))/1800} color={Colors.green300} width={width * 0.5} />
+             </View>
+             </View>  
+             <View style={{flex: 1, flexDirection: 'row', marginTop: height * 0.03 , marginLeft:width * 0.05}}>
+             <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Protein: {(((parseFloat(breakfastItems.protein) + parseFloat(lunchItems.protein) + parseFloat(dinnerItems.protein)).toFixed(2)*100)/94).toFixed(0)}%</Text>
+             <ProgressBar progress={(parseFloat(breakfastItems.protein) + parseFloat(lunchItems.protein) + parseFloat(dinnerItems.protein)).toFixed(2)/94} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(breakfastItems.protein) + parseFloat(lunchItems.protein) + parseFloat(dinnerItems.protein)).toFixed(2)}g</Text>
+           </View>
+           <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Carbs: {(((parseFloat(breakfastItems.netCarbs) + parseFloat(lunchItems.netCarbs) + parseFloat(dinnerItems.netCarbs)).toFixed(2)*100)/212).toFixed(0)}%</Text>
+             <ProgressBar progress={((parseFloat(breakfastItems.netCarbs) + parseFloat(lunchItems.netCarbs) + parseFloat(dinnerItems.netCarbs)).toFixed(2))/212} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(breakfastItems.netCarbs) + parseFloat(lunchItems.netCarbs) + parseFloat(dinnerItems.netCarbs)).toFixed(2)}g</Text>
+           </View>
+           <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Fat: {(((parseFloat(breakfastItems.netCarbs) + parseFloat(lunchItems.netCarbs) + parseFloat(dinnerItems.netCarbs)).toFixed(2)*100)/73).toFixed(0)}%</Text>
+             <ProgressBar progress={(parseFloat(breakfastItems.netCarbs) + parseFloat(lunchItems.netCarbs) + parseFloat(dinnerItems.netCarbs))/73} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(breakfastItems.netCarbs) + parseFloat(lunchItems.netCarbs) + parseFloat(dinnerItems.netCarbs)).toFixed(2)}cals</Text>
+           </View>
+           </View>
+             <View style={{flexDirection: 'row', alignItems: 'center' }}>
+                 <PieChart
+                 style={{ height: 200, width: 200}}
+                 outerRadius={'70%'}
+                 innerRadius={1}
+                 data={[
+                   {
+                     key: 1,
+                     value: (parseFloat(breakfastItems.protein) + parseFloat(lunchItems.protein) + parseFloat(dinnerItems.protein)),
+                     svg: { fill: '#3bafda' }, 
+                     arc: { cornerRadius: 1, }
+                   },
+                   {
+                     key: 2,
+                     value:(parseFloat(breakfastItems.netCarbs) + parseFloat(lunchItems.netCarbs) + parseFloat(dinnerItems.netCarbs)),
+                     svg: { fill: '#ff6c87' }, 
+                     arc: { cornerRadius: 1, }
+                   },
+                   {
+                     key: 3,
+                     value:(parseFloat(breakfastItems.fat) + parseFloat(lunchItems.fat) + parseFloat(dinnerItems.fat)),
+                     svg: { fill: 'gold' }, 
+                     arc: { cornerRadius: 1, }
+                   }
+                 ]}
+                 />
+               
+               <View style={{flex: 1, flexDirection: 'column', marginBottom: height * 0.12, marginTop: height*0.05, alignSelf: 'center'}}>
+                 <Text>{"\n"}</Text>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: '#3bafda', fontWeight: 'bold', fontSize: 16}}>Protein: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(breakfastItems.protein) + parseFloat(lunchItems.protein) + parseFloat(dinnerItems.protein)).toFixed(2)}g</Text>
+               </View>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: '#ff6c87', fontWeight: 'bold', fontSize: 16}}>Carbs: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(breakfastItems.netCarbs) + parseFloat(lunchItems.netCarbs) + parseFloat(dinnerItems.netCarbs)).toFixed(2)}g</Text>
+               </View>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: 'gold', fontWeight: 'bold', fontSize: 16}}>Fat: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(breakfastItems.fat) + parseFloat(lunchItems.fat) + parseFloat(dinnerItems.fat)).toFixed(2)}g</Text>
+               </View>
           
-        <Block row space="between" style={{ marginBottom: 16 }}>          
-            <Text spacing={0.5} caption medium primary style={styles.textStyle}>
-              {data0} Kg
-            </Text>
-            <Text spacing={0.5} caption style={styles.textStyle}>
-            {data2} cm
-            </Text>
-            <Text spacing={0.5} caption style={styles.textStyle}>
-            {data1}
-            </Text>
-        </Block>
-        </Block>
-      
+               </View>
+             </View> 
+         </View> ) : (lunchItems && dinnerItems ? ( 
+       <View style={styles.containerFour}>
+          <View style={{alignContent:"center", alignItems: "center", marginTop: height * 0.02, marginBottom: height * 0.02}}>
+         <AnimatedCircularProgress
+          size={1800/10}
+          width={15}
+          fill={(((parseFloat(lunchItems.calories) + parseFloat(dinnerItems.calories)).toFixed(2))/1800)*100}
+          tintColor="#00e0ff"
+          backgroundColor="white"
+          rotation={360}
+          duration={1000}
+        >
+          {(fill) => <Text style={styles.circleText}>Total calories: {(parseFloat(lunchItems.calories) + parseFloat(dinnerItems.calories)).toFixed(0)} cals</Text>}
+        </AnimatedCircularProgress>
+         </View>
+             <Text >Meal totals:</Text> 
+             <View style={{flex: 1, flexDirection: 'row', marginTop: height * 0.03 , marginLeft:width * 0.05}}>
+             <Text>Calories:</Text>
+             <View style={{flex: 1, flexDirection: 'column',  marginLeft:width * 0.05}}>
+               <Text>{(parseFloat(lunchItems.calories) + parseFloat(dinnerItems.calories)).toFixed(0)} cals, 
+               {(((parseFloat(lunchItems.calories) + parseFloat(dinnerItems.calories)).toFixed(2)*100)/1800).toFixed(0)}%</Text>
+               <ProgressBar progress={((parseFloat(lunchItems.calories) + parseFloat(dinnerItems.calories)).toFixed(2))/1800} color={Colors.green300} width={width * 0.5} />
+             </View>
+             </View>  
+             <View style={{flex: 1, flexDirection: 'row', marginTop: height * 0.03 , marginLeft:width * 0.05}}>
+             <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Protein: {(((parseFloat(lunchItems.protein) + parseFloat(dinnerItems.protein)).toFixed(2)*100)/94).toFixed(0)}%</Text>
+             <ProgressBar progress={(parseFloat(lunchItems.protein) + parseFloat(dinnerItems.protein)).toFixed(2)/94} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(lunchItems.protein) + parseFloat(dinnerItems.protein)).toFixed(2)}g</Text>
+           </View>
+           <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Carbs: {(((parseFloat(lunchItems.netCarbs) + parseFloat(dinnerItems.netCarbs)).toFixed(2)*100)/212).toFixed(0)}%</Text>
+             <ProgressBar progress={((parseFloat(lunchItems.netCarbs) + parseFloat(dinnerItems.netCarbs)).toFixed(2))/212} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(lunchItems.netCarbs) + parseFloat(dinnerItems.netCarbs)).toFixed(2)}g</Text>
+           </View>
+           <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Fat: {(((parseFloat(lunchItems.netCarbs) + parseFloat(dinnerItems.netCarbs)).toFixed(2)*100)/73).toFixed(0)}%</Text>
+             <ProgressBar progress={(parseFloat(lunchItems.netCarbs) + parseFloat(dinnerItems.netCarbs))/73} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(lunchItems.netCarbs) + parseFloat(dinnerItems.netCarbs)).toFixed(2)}cals</Text>
+           </View>
+           </View>
+             <View style={{flexDirection: 'row', alignItems: 'center' }}>
+                 <PieChart
+                 style={{ height: 200, width: 200}}
+                 outerRadius={'70%'}
+                 innerRadius={1}
+                 data={[
+                   {
+                     key: 1,
+                     value: (parseFloat(lunchItems.protein) + parseFloat(dinnerItems.protein)),
+                     svg: { fill: '#3bafda' }, 
+                     arc: { cornerRadius: 1, }
+                   },
+                   {
+                     key: 2,
+                     value:(parseFloat(lunchItems.netCarbs) + parseFloat(dinnerItems.netCarbs)),
+                     svg: { fill: '#ff6c87' }, 
+                     arc: { cornerRadius: 1, }
+                   },
+                   {
+                     key: 3,
+                     value:( parseFloat(lunchItems.fat) + parseFloat(dinnerItems.fat)),
+                     svg: { fill: 'gold' }, 
+                     arc: { cornerRadius: 1, }
+                   }
+                 ]}
+                 />
+               
+               <View style={{flex: 1, flexDirection: 'column', marginBottom: height * 0.12, marginTop: height*0.05, alignSelf: 'center'}}>
+                 <Text>{"\n"}</Text>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: '#3bafda', fontWeight: 'bold', fontSize: 16}}>Protein: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(lunchItems.protein) + parseFloat(dinnerItems.protein)).toFixed(2)}g</Text>
+               </View>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: '#ff6c87', fontWeight: 'bold', fontSize: 16}}>Carbs: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(lunchItems.netCarbs) + parseFloat(dinnerItems.netCarbs)).toFixed(2)}g</Text>
+               </View>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: 'gold', fontWeight: 'bold', fontSize: 16}}>Fat: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(lunchItems.fat) + parseFloat(dinnerItems.fat)).toFixed(2)}g</Text>
+               </View>
+          
+               </View>
+             </View> 
+         </View>): (breakfastItems && dinnerItems ? ( 
+       <View style={styles.containerFour}>
+          <View style={{alignContent:"center", alignItems: "center", marginTop: height * 0.02, marginBottom: height * 0.02}}>
+         <AnimatedCircularProgress
+          size={1800/10}
+          width={15}
+          fill={(((parseFloat(breakfastItems.calories) +parseFloat(dinnerItems.calories)).toFixed(2))/1800)*100}
+          tintColor="#00e0ff"
+          backgroundColor="white"
+          rotation={360}
+          duration={1000}
+        >
+          {(fill) => <Text style={styles.circleText}>Total calories: {((parseFloat(breakfastItems.calories)) + parseFloat(dinnerItems.calories)).toFixed(0)} cals</Text>}
+        </AnimatedCircularProgress>
+         </View>
+             <Text >Meal totals:</Text> 
+             <View style={{flex: 1, flexDirection: 'row', marginTop: height * 0.03 , marginLeft:width * 0.05}}>
+             <Text>Calories:</Text>
+             <View style={{flex: 1, flexDirection: 'column',  marginLeft:width * 0.05}}>
+               <Text>{(parseFloat(breakfastItems.calories)+ parseFloat(dinnerItems.calories)).toFixed(0)} cals, 
+               {(((parseFloat(breakfastItems.calories) + parseFloat(dinnerItems.calories)).toFixed(2)*100)/1800).toFixed(0)}%</Text>
+               <ProgressBar progress={((parseFloat(breakfastItems.calories) + parseFloat(dinnerItems.calories)).toFixed(2))/1800} color={Colors.green300} width={width * 0.5} />
+             </View>
+             </View>  
+             <View style={{flex: 1, flexDirection: 'row', marginTop: height * 0.03 , marginLeft:width * 0.05}}>
+             <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Protein: {(((parseFloat(breakfastItems.protein) + parseFloat(dinnerItems.protein)).toFixed(2)*100)/94).toFixed(0)}%</Text>
+             <ProgressBar progress={(parseFloat(breakfastItems.protein) + parseFloat(dinnerItems.protein)).toFixed(2)/94} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(breakfastItems.protein) + parseFloat(dinnerItems.protein)).toFixed(2)}g</Text>
+           </View>
+           <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Carbs: {(((parseFloat(breakfastItems.netCarbs) + parseFloat(dinnerItems.netCarbs)).toFixed(2)*100)/212).toFixed(0)}%</Text>
+             <ProgressBar progress={((parseFloat(breakfastItems.netCarbs) + parseFloat(dinnerItems.netCarbs)).toFixed(2))/212} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(breakfastItems.netCarbs) + parseFloat(dinnerItems.netCarbs)).toFixed(2)}g</Text>
+           </View>
+           <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Fat: {(((parseFloat(breakfastItems.netCarbs) + parseFloat(dinnerItems.netCarbs)).toFixed(2)*100)/73).toFixed(0)}%</Text>
+             <ProgressBar progress={(parseFloat(breakfastItems.netCarbs) + parseFloat(dinnerItems.netCarbs))/73} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(breakfastItems.netCarbs) + parseFloat(dinnerItems.netCarbs)).toFixed(2)}cals</Text>
+           </View>
+           </View>
+             <View style={{flexDirection: 'row', alignItems: 'center' }}>
+                 <PieChart
+                 style={{ height: 200, width: 200}}
+                 outerRadius={'70%'}
+                 innerRadius={1}
+                 data={[
+                   {
+                     key: 1,
+                     value: (parseFloat(breakfastItems.protein) + parseFloat(dinnerItems.protein)),
+                     svg: { fill: '#3bafda' }, 
+                     arc: { cornerRadius: 1, }
+                   },
+                   {
+                     key: 2,
+                     value:(parseFloat(breakfastItems.netCarbs) + parseFloat(dinnerItems.netCarbs)),
+                     svg: { fill: '#ff6c87' }, 
+                     arc: { cornerRadius: 1, }
+                   },
+                   {
+                     key: 3,
+                     value:(parseFloat(breakfastItems.fat) + parseFloat(dinnerItems.fat)),
+                     svg: { fill: 'gold' }, 
+                     arc: { cornerRadius: 1, }
+                   }
+                 ]}
+                 />
+               
+               <View style={{flex: 1, flexDirection: 'column', marginBottom: height * 0.12, marginTop: height*0.05, alignSelf: 'center'}}>
+                 <Text>{"\n"}</Text>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: '#3bafda', fontWeight: 'bold', fontSize: 16}}>Protein: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(breakfastItems.protein) + parseFloat(dinnerItems.protein)).toFixed(2)}g</Text>
+               </View>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: '#ff6c87', fontWeight: 'bold', fontSize: 16}}>Carbs: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(breakfastItems.netCarbs) + parseFloat(dinnerItems.netCarbs)).toFixed(2)}g</Text>
+               </View>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: 'gold', fontWeight: 'bold', fontSize: 16}}>Fat: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(breakfastItems.fat) + parseFloat(dinnerItems.fat)).toFixed(2)}g</Text>
+               </View>
+          
+               </View>
+             </View> 
+         </View>) : (breakfastItems && lunchItems ? ( 
+       <View style={styles.containerFour}>
+          <View style={{alignContent:"center", alignItems: "center", marginTop: height * 0.02, marginBottom: height * 0.02}}>
+         <AnimatedCircularProgress
+          size={1800/10}
+          width={15}
+          fill={(((parseFloat(breakfastItems.calories) + parseFloat(lunchItems.calories)).toFixed(2))/1800)*100}
+          tintColor="#00e0ff"
+          backgroundColor="white"
+          rotation={360}
+          duration={1000}
+        >
+          {(fill) => <Text style={styles.circleText}>Total calories: {(parseFloat(breakfastItems.calories) + parseFloat(lunchItems.calories)).toFixed(0)} cals</Text>}
+        </AnimatedCircularProgress>
+         </View>
+             <Text >Meal totals:</Text> 
+             <View style={{flex: 1, flexDirection: 'row', marginTop: height * 0.03 , marginLeft:width * 0.05}}>
+             <Text>Calories:</Text>
+             <View style={{flex: 1, flexDirection: 'column',  marginLeft:width * 0.05}}>
+               <Text>{(parseFloat(breakfastItems.calories)+ parseFloat(lunchItems.calories)).toFixed(0)} cals, 
+               {(((parseFloat(breakfastItems.calories) + parseFloat(lunchItems.calories)).toFixed(2)*100)/1800).toFixed(0)}%</Text>
+               <ProgressBar progress={((parseFloat(breakfastItems.calories) + parseFloat(lunchItems.calories)).toFixed(2))/1800} color={Colors.green300} width={width * 0.5} />
+             </View>
+             </View>  
+             <View style={{flex: 1, flexDirection: 'row', marginTop: height * 0.03 , marginLeft:width * 0.05}}>
+             <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Protein: {(((parseFloat(breakfastItems.protein) + parseFloat(lunchItems.protein)).toFixed(2)*100)/94).toFixed(0)}%</Text>
+             <ProgressBar progress={(parseFloat(breakfastItems.protein) + parseFloat(lunchItems.protein)).toFixed(2)/94} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(breakfastItems.protein) + parseFloat(lunchItems.protein)).toFixed(2)}g</Text>
+           </View>
+           <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Carbs: {(((parseFloat(breakfastItems.netCarbs) + parseFloat(lunchItems.netCarbs)).toFixed(2)*100)/212).toFixed(0)}%</Text>
+             <ProgressBar progress={((parseFloat(breakfastItems.netCarbs) + parseFloat(lunchItems.netCarbs)).toFixed(2))/212} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(breakfastItems.netCarbs) + parseFloat(lunchItems.netCarbs)).toFixed(2)}g</Text>
+           </View>
+           <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Fat: {(((parseFloat(breakfastItems.netCarbs) + parseFloat(lunchItems.netCarbs)).toFixed(2)*100)/73).toFixed(0)}%</Text>
+             <ProgressBar progress={(parseFloat(breakfastItems.netCarbs) + parseFloat(lunchItems.netCarbs))/73} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(breakfastItems.netCarbs) + parseFloat(lunchItems.netCarbs)).toFixed(2)}cals</Text>
+           </View>
+           </View>
+             <View style={{flexDirection: 'row', alignItems: 'center' }}>
+                 <PieChart
+                 style={{ height: 200, width: 200}}
+                 outerRadius={'70%'}
+                 innerRadius={1}
+                 data={[
+                   {
+                     key: 1,
+                     value: (parseFloat(breakfastItems.protein) + parseFloat(lunchItems.protein)),
+                     svg: { fill: '#3bafda' }, 
+                     arc: { cornerRadius: 1, }
+                   },
+                   {
+                     key: 2,
+                     value:(parseFloat(breakfastItems.netCarbs) + parseFloat(lunchItems.netCarbs)),
+                     svg: { fill: '#ff6c87' }, 
+                     arc: { cornerRadius: 1, }
+                   },
+                   {
+                     key: 3,
+                     value:(parseFloat(breakfastItems.fat) + parseFloat(lunchItems.fat)),
+                     svg: { fill: 'gold' }, 
+                     arc: { cornerRadius: 1, }
+                   }
+                 ]}
+                 />
+               
+               <View style={{flex: 1, flexDirection: 'column', marginBottom: height * 0.12, marginTop: height*0.05, alignSelf: 'center'}}>
+                 <Text>{"\n"}</Text>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: '#3bafda', fontWeight: 'bold', fontSize: 16}}>Protein: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(breakfastItems.protein) + parseFloat(lunchItems.protein)).toFixed(2)}g</Text>
+               </View>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: '#ff6c87', fontWeight: 'bold', fontSize: 16}}>Carbs: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(breakfastItems.netCarbs) + parseFloat(lunchItems.netCarbs)).toFixed(2)}g</Text>
+               </View>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: 'gold', fontWeight: 'bold', fontSize: 16}}>Fat: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(breakfastItems.fat) + parseFloat(lunchItems.fat)).toFixed(2)}g</Text>
+               </View>
+          
+               </View>
+             </View> 
+         </View>): (breakfastItems ? ( 
+       <View style={styles.containerFour}>
+          <View style={{alignContent:"center", alignItems: "center", marginTop: height * 0.02, marginBottom: height * 0.02}}>
+         <AnimatedCircularProgress
+          size={1800/10}
+          width={15}
+          fill={(((parseFloat(breakfastItems.calories)).toFixed(2))/1800)*100}
+          tintColor="#00e0ff"
+          backgroundColor="white"
+          rotation={360}
+          duration={1000}
+        >
+          {(fill) => <Text style={styles.circleText}>Total calories: {(parseFloat(breakfastItems.calories) ).toFixed(0)} cals</Text>}
+        </AnimatedCircularProgress>
+         </View>
+             <Text >Meal totals1:</Text> 
+             <View style={{flex: 1, flexDirection: 'row', marginTop: height * 0.03 , marginLeft:width * 0.05}}>
+             <Text>Calories:</Text>
+             <View style={{flex: 1, flexDirection: 'column',  marginLeft:width * 0.05}}>
+               <Text>{(parseFloat(breakfastItems.calories)).toFixed(0)} cals, 
+               {(((parseFloat(breakfastItems.calories)).toFixed(2)*100)/1800).toFixed(0)}%</Text>
+               <ProgressBar progress={((parseFloat(breakfastItems.calories)).toFixed(2))/1800} color={Colors.green300} width={width * 0.5} />
+             </View>
+             </View>  
+             <View style={{flex: 1, flexDirection: 'row', marginTop: height * 0.03 , marginLeft:width * 0.05}}>
+             <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Protein: {(((parseFloat(breakfastItems.protein)).toFixed(2)*100)/94).toFixed(0)}%</Text>
+             <ProgressBar progress={(parseFloat(breakfastItems.protein)).toFixed(2)/94} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(breakfastItems.protein)).toFixed(2)}g</Text>
+           </View>
+           <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Carbs: {(((parseFloat(breakfastItems.netCarbs)).toFixed(2)*100)/212).toFixed(0)}%</Text>
+             <ProgressBar progress={((parseFloat(breakfastItems.netCarbs)).toFixed(2))/212} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(breakfastItems.netCarbs)).toFixed(2)}g</Text>
+           </View>
+           <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Fat: {(((parseFloat(breakfastItems.netCarbs)).toFixed(2)*100)/73).toFixed(0)}%</Text>
+             <ProgressBar progress={(parseFloat(breakfastItems.netCarbs))/73} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(breakfastItems.netCarbs)).toFixed(2)}cals</Text>
+           </View>
+           </View>
+             <View style={{flexDirection: 'row', alignItems: 'center' }}>
+                 <PieChart
+                 style={{ height: 200, width: 200}}
+                 outerRadius={'70%'}
+                 innerRadius={1}
+                 data={[
+                   {
+                     key: 1,
+                     value: (parseFloat(breakfastItems.protein) ),
+                     svg: { fill: '#3bafda' }, 
+                     arc: { cornerRadius: 1, }
+                   },
+                   {
+                     key: 2,
+                     value:(parseFloat(breakfastItems.netCarbs)),
+                     svg: { fill: '#ff6c87' }, 
+                     arc: { cornerRadius: 1, }
+                   },
+                   {
+                     key: 3,
+                     value:(parseFloat(breakfastItems.fat)),
+                     svg: { fill: 'gold' }, 
+                     arc: { cornerRadius: 1, }
+                   }
+                 ]}
+                 />
+               
+               <View style={{flex: 1, flexDirection: 'column', marginBottom: height * 0.12, marginTop: height*0.05, alignSelf: 'center'}}>
+                 <Text>{"\n"}</Text>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: '#3bafda', fontWeight: 'bold', fontSize: 16}}>Protein: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(breakfastItems.protein)).toFixed(2)}g</Text>
+               </View>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: '#ff6c87', fontWeight: 'bold', fontSize: 16}}>Carbs: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(breakfastItems.netCarbs)).toFixed(2)}g</Text>
+               </View>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: 'gold', fontWeight: 'bold', fontSize: 16}}>Fat: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(breakfastItems.fat)).toFixed(2)}g</Text>
+               </View>
+          
+               </View>
+             </View> 
+         </View>):(lunchItems ? ( 
+       <View style={styles.containerFour}>
+          <View style={{alignContent:"center", alignItems: "center", marginTop: height * 0.02, marginBottom: height * 0.02}}>
+         <AnimatedCircularProgress
+          size={1800/10}
+          width={15}
+          fill={((parseFloat(parseFloat(lunchItems.calories)).toFixed(2))/1800)*100}
+          tintColor="#00e0ff"
+          backgroundColor="white"
+          rotation={360}
+          duration={1000}
+        >
+          {(fill) => <Text style={styles.circleText}>Total calories: {(parseFloat(lunchItems.calories)).toFixed(0)} cals</Text>}
+        </AnimatedCircularProgress>
+         </View>
+             <Text >Meal totals:</Text> 
+             <View style={{flex: 1, flexDirection: 'row', marginTop: height * 0.03 , marginLeft:width * 0.05}}>
+             <Text>Calories:</Text>
+             <View style={{flex: 1, flexDirection: 'column',  marginLeft:width * 0.05}}>
+               <Text>{(parseFloat(lunchItems.calories)).toFixed(0)} cals, 
+               {(((parseFloat(lunchItems.calories)).toFixed(2)*100)/1800).toFixed(0)}%</Text>
+               <ProgressBar progress={((parseFloat(lunchItems.calories)).toFixed(2))/1800} color={Colors.green300} width={width * 0.5} />
+             </View>
+             </View>  
+             <View style={{flex: 1, flexDirection: 'row', marginTop: height * 0.03 , marginLeft:width * 0.05}}>
+             <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Protein: {(((parseFloat(lunchItems.protein)).toFixed(2)*100)/94).toFixed(0)}%</Text>
+             <ProgressBar progress={(parseFloat(lunchItems.protein)).toFixed(2)/94} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(lunchItems.protein)).toFixed(2)}g</Text>
+           </View>
+           <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Carbs: {(((parseFloat(lunchItems.netCarbs)).toFixed(2)*100)/212).toFixed(0)}%</Text>
+             <ProgressBar progress={((parseFloat(lunchItems.netCarbs)).toFixed(2))/212} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(lunchItems.netCarbs)).toFixed(2)}g</Text>
+           </View>
+           <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Fat: {(((parseFloat(lunchItems.netCarbs)).toFixed(2)*100)/73).toFixed(0)}%</Text>
+             <ProgressBar progress={(parseFloat(lunchItems.netCarbs))/73} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(lunchItems.netCarbs)).toFixed(2)}cals</Text>
+           </View>
+           </View>
+             <View style={{flexDirection: 'row', alignItems: 'center' }}>
+                 <PieChart
+                 style={{ height: 200, width: 200}}
+                 outerRadius={'70%'}
+                 innerRadius={1}
+                 data={[
+                   {
+                     key: 1,
+                     value: (parseFloat(lunchItems.protein) ),
+                     svg: { fill: '#3bafda' }, 
+                     arc: { cornerRadius: 1, }
+                   },
+                   {
+                     key: 2,
+                     value:(parseFloat(lunchItems.netCarbs)),
+                     svg: { fill: '#ff6c87' }, 
+                     arc: { cornerRadius: 1, }
+                   },
+                   {
+                     key: 3,
+                     value:(parseFloat(lunchItems.fat)),
+                     svg: { fill: 'gold' }, 
+                     arc: { cornerRadius: 1, }
+                   }
+                 ]}
+                 />
+               
+               <View style={{flex: 1, flexDirection: 'column', marginBottom: height * 0.12, marginTop: height*0.05, alignSelf: 'center'}}>
+                 <Text>{"\n"}</Text>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: '#3bafda', fontWeight: 'bold', fontSize: 16}}>Protein: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(lunchItems.protein)).toFixed(2)}g</Text>
+               </View>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: '#ff6c87', fontWeight: 'bold', fontSize: 16}}>Carbs: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(lunchItems.netCarbs)).toFixed(2)}g</Text>
+               </View>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: 'gold', fontWeight: 'bold', fontSize: 16}}>Fat: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(lunchItems.fat)).toFixed(2)}g</Text>
+               </View>
+          
+               </View>
+             </View> 
+         </View>) : (dinnerItems ? ( 
+       <View style={styles.containerFour}>
+          <View style={{alignContent:"center", alignItems: "center", marginTop: height * 0.02, marginBottom: height * 0.02}}>
+         <AnimatedCircularProgress
+          size={1800/10}
+          width={15}
+          fill={(((parseFloat(dinnerItems.calories)).toFixed(2))/1800)*100}
+          tintColor="#00e0ff"
+          backgroundColor="white"
+          rotation={360}
+          duration={1000}
+        >
+          {(fill) => <Text style={styles.circleText}>Total calories: {(parseFloat(dinnerItems.calories)).toFixed(0)} cals</Text>}
+        </AnimatedCircularProgress>
+         </View>
+             <Text >Meal totals:</Text> 
+             <View style={{flex: 1, flexDirection: 'row', marginTop: height * 0.03 , marginLeft:width * 0.05}}>
+             <Text>Calories:</Text>
+             <View style={{flex: 1, flexDirection: 'column',  marginLeft:width * 0.05}}>
+               <Text>{(parseFloat(dinnerItems.calories)).toFixed(0)} cals, 
+               {(((parseFloat(dinnerItems.calories)).toFixed(2)*100)/1800).toFixed(0)}%</Text>
+               <ProgressBar progress={((parseFloat(dinnerItems.calories)).toFixed(2))/1800} color={Colors.green300} width={width * 0.5} />
+             </View>
+             </View>  
+             <View style={{flex: 1, flexDirection: 'row', marginTop: height * 0.03 , marginLeft:width * 0.05}}>
+             <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Protein: {(((parseFloat(dinnerItems.protein)).toFixed(2)*100)/94).toFixed(0)}%</Text>
+             <ProgressBar progress={(parseFloat(dinnerItems.protein)).toFixed(2)/94} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(dinnerItems.protein)).toFixed(2)}g</Text>
+           </View>
+           <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Carbs: {(((parseFloat(dinnerItems.netCarbs)).toFixed(2)*100)/212).toFixed(0)}%</Text>
+             <ProgressBar progress={((parseFloat(dinnerItems.netCarbs)).toFixed(2))/212} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(dinnerItems.netCarbs)).toFixed(2)}g</Text>
+           </View>
+           <View style={{flex: 1, flexDirection: 'column', marginTop: height * 0.05 , marginLeft:width * 0.01}}>
+             <Text>Fat: {(((parseFloat(dinnerItems.netCarbs)).toFixed(2)*100)/73).toFixed(0)}%</Text>
+             <ProgressBar progress={(parseFloat(dinnerItems.netCarbs))/73} color={Colors.green500} width={width * 0.25} />
+             <Text>{(parseFloat(dinnerItems.netCarbs)).toFixed(2)}cals</Text>
+           </View>
+           </View>
+             <View style={{flexDirection: 'row', alignItems: 'center' }}>
+                 <PieChart
+                 style={{ height: 200, width: 200}}
+                 outerRadius={'70%'}
+                 innerRadius={1}
+                 data={[
+                   {
+                     key: 1,
+                     value: (parseFloat(dinnerItems.protein) ),
+                     svg: { fill: '#3bafda' }, 
+                     arc: { cornerRadius: 1, }
+                   },
+                   {
+                     key: 2,
+                     value:(parseFloat(dinnerItems.netCarbs)),
+                     svg: { fill: '#ff6c87' }, 
+                     arc: { cornerRadius: 1, }
+                   },
+                   {
+                     key: 3,
+                     value:(parseFloat(dinnerItems.fat)),
+                     svg: { fill: 'gold' }, 
+                     arc: { cornerRadius: 1, }
+                   }
+                 ]}
+                 />
+               
+               <View style={{flex: 1, flexDirection: 'column', marginBottom: height * 0.12, marginTop: height*0.05, alignSelf: 'center'}}>
+                 <Text>{"\n"}</Text>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: '#3bafda', fontWeight: 'bold', fontSize: 16}}>Protein: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(dinnerItems.protein)).toFixed(2)}g</Text>
+               </View>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: '#ff6c87', fontWeight: 'bold', fontSize: 16}}>Carbs: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(dinnerItems.netCarbs)).toFixed(2)}g</Text>
+               </View>
+               <View style={{flex: 1, flexDirection: 'row' }}>
+                 <Text style={{color: 'gold', fontWeight: 'bold', fontSize: 16}}>Fat: </Text>
+                 <Text style={{color: 'black', fontSize: 16}}>{(parseFloat(dinnerItems.fat)).toFixed(2)}g</Text>
+               </View>
+          
+               </View>
+             </View> 
+         </View>) :
+           (<View style={{marginTop: height * 0.2}}></View>)))))))}</View>
 
-       
-</Card1>
-<Card1 shadow >
-        <Block row space="between" style={{ marginBottom: 16 }}>
-       
-        <Text style={styles.dateText}></Text>
-          </Block>
-          <Text style={styles.dateText}>{moment(date1).format('LL')}</Text>
-          <Block row space="between" style={{ marginBottom: 30 }}>
-       
-          </Block><Text style={styles.dateText}>{cognitive.score}</Text>
-      
-
-       
-      </Card1>
-
-
-
-
-
-
-
+ */}
 
 
             </View>
@@ -719,10 +1295,9 @@ const styles = StyleSheet.create({
   },
     containerFour: {
       backgroundColor: '#fff',
-      flex: 1,
       width: width * 0.95,
-      alignSelf: "center",
-      height: height * 0.3
+      alignSelf: 'center',
+      marginBottom: height * 0.05
     },
     containerSix: {
       backgroundColor: 'red',

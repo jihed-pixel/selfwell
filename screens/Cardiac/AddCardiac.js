@@ -9,12 +9,12 @@ import { ProgressBar, Colors } from 'react-native-paper';
 import Api from '../../API';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import API from '../../API';
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { PieChart } from 'react-native-svg-charts'
 
 
 const { width, height } = Dimensions.get("window");
 var back = '<';
-var date = '';
 const moment = require('moment');
 const today = moment();
 var date1 = today.format('YYYY-MM-DD');
@@ -62,6 +62,7 @@ const BloodAnalysisHistory = ({navigation}) => {
       saturatedFats: "0",
       fiber: "0"
     };
+    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [datePicker, setDatePicker] = useState(false); 
     const [date, setDate] = useState(new Date());
     const [timePicker, setTimePicker] = useState(false);
@@ -83,7 +84,26 @@ const BloodAnalysisHistory = ({navigation}) => {
     const [data1, setData1] = useState();
     const [cognitive, setCognitive] = useState();
     var idUser;
-
+    const showDatePickeraa = () => {
+      setDatePickerVisibility(true);
+    };
+  
+    const hideDatePickeraa = () => {
+      setDatePickerVisibility(false);
+    };
+  
+    const handleConfirm = (date) => {
+      //date.setTime(date.getTime()-date.getTimezoneOffset()*60*1000)
+      setDate(date)
+      date1 = moment(date).format('YYYY-MM-DD');
+      retrieveBloodanalysis();
+      getBreakfast(date1);
+    getLunch(date1);
+    getDinner(date1);
+      setDatePicker(false);
+      hideDatePickeraa();
+    };
+  
     const getBreakfast = async (date) => {
       const idUser = await AsyncStorage.getItem("id");
       API.showBreakfast(idUser, date)
@@ -292,38 +312,21 @@ const retrieveCognitive = async () => {
           <Text style={styles.headerText}>My blood analysis History</Text>
           </View>
 <View >
-{datePicker && (
-          <DateTimePicker
-            value={date}
-            mode={'date'}
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-            is24Hour={true}
-            onChange={onDateSelected}
-          />
-        )}
 
-        {timePicker && (
-          <DateTimePicker
-            value={time}
-            mode={'time'}
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-            is24Hour={false}
-            onChange={onTimeSelected}
-          />
-        )}
- 
-        {!datePicker && (
-          <View style={{ margin: 10 }}>
-            <Button title="Show Date Picker" color="green" onPress={showDatePicker} />
-          </View>
-        )}
- 
-        {!timePicker && (
-          <View style={{ margin: 10 }}>
-            <Button title="Show Time Picker" color="green" onPress={showTimePicker} />
-          </View>
-        )}
-        
+ {!datePicker && 
+  <View style={{ margin: 10 }}>
+  <Button color="green" title={date !== undefined && date.toString().substr(0, 21) || "Choose date"} onPress={showDatePickeraa} />
+              <DateTimePickerModal
+  
+                isVisible={isDatePickerVisible}
+                mode="date"
+                onConfirm={handleConfirm}
+                onCancel={hideDatePickeraa}
+                testID="dateTimePicker"
+  
+              /></View>
+ }
+       
       
       <View>
       

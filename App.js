@@ -27,6 +27,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 import MainTabScreen from './screens/MainTabScreen';
 import model from './screens/model/model';
+import model2 from './screens/model/model2';
 import UpdatePass from './screens/UpdatePass';
 import ConfirmAccount from './screens/ConfirmAccount';
 import ListDate from './screens/IotData/ListDate';
@@ -247,6 +248,7 @@ const App = () => {
         <Drawer.Navigator initialRouteName="HomeDrawer" drawerContent={props => <DrawerContent {...props} />}>
            <Drawer.Screen name="HomeDrawer" component={MainTabScreen} />
            <Drawer.Screen name="model" component={model} />
+           <Drawer.Screen name="model2" component={model2} />
            <Drawer.Screen name="ListDate" component={ListDate} />
            <Drawer.Screen name="ListDate1" component={ListDate1} />
            <Drawer.Screen name="SplashScreen" component={SplashScreen} />

@@ -178,16 +178,16 @@ const BloodAnalysisHistory = ({navigation}) => {
           
         </View>
         <DropDownPicker
-      containerStyle={{height: height * 0.05,marginBottom: height * 0.02, marginTop: height * 0.025, marginLeft: width * 0.2}}
-      style={{backgroundColor: '#fff', width: width * 0.45}}
+      containerStyle={{height: height * 0.15,marginBottom: height * 0.02, marginTop: height * 0.025, marginLeft: width * 0.2,zIndex: 10}}
+      style={{backgroundColor: '#fff', width: width * 0.45,zIndex: 10}}
       labelStyle={{
         color: 'black',
         fontWeight: 'bold',
-        fontSize: 20
+        fontSize: 20,zIndex: 10
       }}
-      itemStyle={{justifyContent: 'flex-start'}}
-      dropDownStyle={{backgroundColor: '#fff'}}
-      arrowStyle={{color: '#fff', size: 24}}
+      itemStyle={{justifyContent: 'flex-start',zIndex: 10}}
+      dropDownStyle={{backgroundColor: '#fff',zIndex: 10}}
+      arrowStyle={{color: '#fff', size: 80,zIndex: 10}}
       open={open}
       value={value}
       items={items}

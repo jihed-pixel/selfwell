@@ -167,7 +167,7 @@ const HomeScreen = ({navigation}) => {
 
               <TouchableOpacity
                 
-                onPress={() => navigation.navigate("AddCardiac")}
+                onPress={() => navigation.navigate("model2")}
               >
 
                 <Card center middle shadow style={styles.category}>
@@ -179,7 +179,7 @@ const HomeScreen = ({navigation}) => {
                     <Image source={require('../assets/nutrition.png')} style={styles.imageNutrition} />
                   </Badge>
                   <Text style={styles.text}>
-                    Nutrition
+                  model2
                   </Text>
                  
                 </Card>
